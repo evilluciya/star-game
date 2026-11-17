@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Звёздная Игра 3D</title>
+<meta name="description" content="Звёздная Игра Семеричной Традиции: семь досок в 3D, правила, игра против компьютера.">
+<meta name="theme-color" content="#050505">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+SC:wght@500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=202611170128">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="topnav" id="topnav">
+  <a href="#top" class="brand"><svg class="brand-star" viewBox="0 0 1000 1000" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="36"><path d="M821.412 821.412L45.455 500l775.957-321.412L500 954.545 178.588 178.588 954.545 500 178.588 821.412h642.824L178.588 178.588M178.588 821.412l642.824-642.824"/><circle cx="500" cy="500" r="461"/><circle cx="500" cy="500" r="480"/></g></svg><span class="brand-text">Звёздная Игра</span></a>
+  <div class="navlinks">
+    <a href="#rules">Правила</a><a href="#theory">Теория</a><a href="#s1">I</a><a href="#s2">II</a><a href="#s3">III</a><a href="#s4">IV</a><a href="#s5">V</a>
+    <a href="#s6">VI</a><a href="#s7">VII</a><a href="#s8">VIII</a><a href="#s9">IX</a><a href="#s10">X</a>
+  </div>
+  <a class="nav-tg tg-link" href="https://t.me/livinggad" target="_blank" rel="noopener" title="Канал разработчика" aria-label="Канал разработчика в Telegram"><svg class="tg-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#229ED9"/><path fill="#fff" d="M5.5 11.8l11.6-4.5c.54-.2 1.01.13.83.95l-1.98 9.32c-.15.66-.54.82-1.09.51l-3-2.21-1.45 1.39c-.16.16-.3.3-.61.3l.21-3.05 5.56-5.02c.24-.21-.05-.33-.38-.12l-6.87 4.33-2.96-.92c-.64-.2-.66-.64.14-.95z"/></svg>LIVINGGAD</a>
+  <button class="btn btn-red btn-sm" data-play>Играть</button>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <svg class="hero-star" viewBox="0 0 1000 1000" aria-hidden="true">
+    <circle cx="500" cy="500" r="480"/><circle cx="500" cy="500" r="461"/>
+    <path id="heroStarPath" d="M821.412 821.412L45.455 500l775.957-321.412L500 954.545 178.588 178.588 954.545 500 178.588 821.412h642.824L178.588 178.588M178.588 821.412l642.824-642.824"/>
+  </svg>
+  <div class="hero-canvas" id="heroCanvas"></div>
+  <div class="hero-copy">
+    <p class="kicker">Семеричная традиция</p>
+    <h1 class="hero-title"><span>Звёздная</span><span>Игра</span></h1>
+    <p class="hero-lead">Семь досок по спирали. Пятьдесят четыре фишки, которые меняются при каждом ходе. Одна цель — на Мире.</p>
+    <div class="hero-actions">
+      <button class="btn btn-red" data-play>Играть в 3D</button>
+      <a class="btn btn-ghost" href="#rules">Правила ↓</a>
+      <a class="btn btn-ghost" href="#theory">Теория ↓</a>
+    </div>
+    <div class="layout-chips" id="heroLayouts" role="group" aria-label="Расположение досок">
+      <button data-layout="spiral" class="on">Спираль</button><button data-layout="stack">Стопка</button><button data-layout="flat">Ряд</button>
+    </div>
+  </div>
+  <ol class="hero-stats">
+    <li><b data-count="7">0</b><span>досок</span></li>
+    <li><b data-count="126">0</b><span>клеток</span></li>
+    <li><b data-count="54">0</b><span>фишки</span></li>
+    <li><b data-count="9">0</b><span>фаз</span></li>
+  </ol>
+  <p class="hero-hint">тяните — вращать · колесо или щипок — приблизить</p>
+</header>
+
+<main>
+  <!-- RULES -->
+  <section class="sec" id="rules">
+    <div class="sec-head"><span class="num">§</span><div><h2>Правила целиком</h2><p class="sub">Всё, что нужно, чтобы сыграть с нуля. Ниже — те же правила в схемах.</p></div></div>
+    <div class="frame"><div id="rulesBox"></div></div>
+  </section>
+
+  <!-- THEORY -->
+  <section class="sec" id="theory">
+    <div class="sec-head"><span class="num num-lbl"><svg class="lbl" viewBox="0 0 1000 1000" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="14"><path d="M821.412 821.412L45.455 500l775.957-321.412L500 954.545 178.588 178.588 954.545 500 178.588 821.412h642.824L178.588 178.588M178.588 821.412l642.824-642.824"/><circle cx="500" cy="500" r="461"/><circle cx="500" cy="500" r="480"/></g></svg></span><div><h2>Теория и символизм</h2><p class="sub">Вся теория текстом: доски, фишки, превращения, психэ, Таро, эоны. Ниже — она же в схемах.</p></div></div>
+    <div class="frame"><div id="theoryBox"></div></div>
+  </section>
+
+  <!-- I -->
+  <section class="sec" id="s1">
+    <div class="sec-head"><span class="num">I</span><div><h2>Древо: семь звёзд</h2><p class="sub">Каждая доска носит имя звезды и отвечает сфере Древа Судьбы — от Луны к Сатурну. Путь мага: Посвящённый → Адепт → Мастер.</p></div></div>
+    <div class="frame"><div id="vizTree" class="viz"></div></div>
+  </section>
+
+  <!-- II -->
+  <section class="sec" id="s2">
+    <div class="sec-head"><span class="num">II</span><div><h2>Девять фаз</h2><p class="sub">Фишка — пара элементов: первый знак — внешний, знак в скобках — внутренний. После каждого хода она переходит в следующую фазу. Внешний элемент решает, как она ходит.</p></div></div>
+    <div class="grid2">
+      <div class="frame"><div id="vizWheel" class="viz"></div></div>
+      <div class="frame"><div id="vizReach" class="viz"></div></div>
+    </div>
+  </section>
+
+  <!-- III -->
+  <section class="sec" id="s3">
+    <div class="sec-head"><span class="num">III</span><div><h2>Расстановка</h2><p class="sub">Так фишки стоят в начале партии. Мира пуста. Чёрные на чёрных клетках сверху, белые на белых снизу.</p></div></div>
+    <div class="frame"><div id="vizSetup" class="viz"></div></div>
+  </section>
+
+  <!-- IV -->
+  <section class="sec" id="s4">
+    <div class="sec-head"><span class="num">IV</span><div><h2>Цель и время Миры</h2><p class="sub">Кто первым расставит свои фишки по узору на Мире — побеждает. Но на Мире нельзя задерживаться дольше трёх ходов.</p></div></div>
+    <div class="grid2 grid-goal">
+      <div class="frame"><div id="vizGoal" class="viz"></div></div>
+      <div class="frame"><div id="vizClock" class="viz"></div></div>
+    </div>
+  </section>
+
+  <!-- V -->
+  <section class="sec" id="s5">
+    <div class="sec-head"><span class="num">V</span><div><h2>Захват с Наоса</h2><p class="sub">Цель — не взятие. Но Сера (Сера) на Наосе может снять любую вражескую фишку на любой другой доске и сломать узор соперника.</p></div></div>
+    <div class="frame"><div id="vizCapture" class="viz"></div></div>
+  </section>
+
+  <!-- VI -->
+  <section class="sec" id="s6">
+    <div class="sec-head"><span class="num">VI</span><div><h2>Психэ: девять типов</h2><p class="sub">Индивидуальный уровень. Внутренний элемент — функция по Юнгу, внешний — уровень сознания.</p></div></div>
+    <div class="frame"><div id="vizJung" class="viz"></div></div>
+  </section>
+
+  <!-- VII -->
+  <section class="sec" id="s7">
+    <div class="sec-head"><span class="num">VII</span><div><h2>Таро и алхимия</h2><p class="sub">У каждой сферы — алхимический процесс, дерево и три Ату: по одному на элемент.</p></div></div>
+    <div class="frame"><div id="vizTarot" class="viz"></div></div>
+  </section>
+
+  <!-- VIII -->
+  <section class="sec" id="s8">
+    <div class="sec-head"><span class="num">VIII</span><div><h2>Эоны</h2><p class="sub">Семь досок — семь эонов. Эон проявляется через высшую цивилизацию (kcu); «Врата» открываются за 300–400 лет до её начала.</p></div></div>
+    <div class="frame"><div id="vizAeon" class="viz"></div></div>
+  </section>
+
+  <!-- IX -->
+  <section class="sec" id="s9">
+    <div class="sec-head"><span class="num">IX</span><div><h2>Расширенная игра</h2><p class="sub">Каждая доска получает ещё три уровня: 308 клеток, 90 фишек и нулевые клетки — связь с Бездной. Задача Внутреннего Адепта. Играть можно в 3D: «Режим» → «Расширенная».</p></div></div>
+    <div class="frame"><div id="vizAdvanced" class="viz"></div></div>
+    <div class="frame" style="margin-top:18px"><div id="rulesAdvBox"></div></div>
+    <p style="margin-top:14px"><button class="btn btn-red" data-play="adv">Играть в расширенную</button></p>
+  </section>
+
+  <!-- X -->
+  <section class="sec" id="s10">
+    <div class="sec-head"><span class="num">X</span><div><h2>Работа и модель</h2><p class="sub">Партия против соперника — только верхний слой. Главное назначение игры — работа с символами.</p></div></div>
+    <div class="grid2">
+      <div class="frame work-card">
+        <span class="wc-icon"><svg class="lbl" viewBox="0 0 1000 1000" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="30"><path d="M821.412 821.412L45.455 500l775.957-321.412L500 954.545 178.588 178.588 954.545 500 178.588 821.412h642.824L178.588 178.588M178.588 821.412l642.824-642.824"/><circle cx="500" cy="500" r="461"/><circle cx="500" cy="500" r="480"/></g></svg></span><h3>Работа</h3>
+        <ol class="steps"><li>Запишите намерение.</li><li>Выберите цвет: белые — созидание (сумерки), чёрные — разрушение (рассвет).</li><li>Отметьте свой узор на Мире — любой, важно связать его с намерением.</li><li>Ведите фишки по правилам, пока узор не сложится. Одному или с соперником, который не знает узор или мешает.</li></ol>
+        <button class="btn btn-red" data-play="work">Начать работу</button>
+      </div>
+      <div class="frame work-card">
+        <span class="wc-icon">◈</span><h3>Модель</h3>
+        <ol class="steps"><li>Расставьте фишки по доскам — как модель человека или ситуации.</li><li>Каждая фишка покажет свой тип, функцию, уровень, Ату, процесс и эон на этом месте.</li><li>«Синтез» сведёт расстановку в общую картину.</li><li>Двигайте фишки по правилам и смотрите, как она меняется.</li></ol>
+        <button class="btn btn-red" data-play="model">Открыть модель</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-cta">
+    <div class="frame frame-cta">
+      <h2>Сыграйте партию</h2>
+      <p class="sub">Против компьютера, вдвоём за одним экраном или в одиночку — собрать узор.</p>
+      <button class="btn btn-red" data-play="ai">Открыть доску</button>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p class="mute">Звёздная Игра · 3D<br>Слава Сатане!<br>Канал разработчика: <a class="tg-link" href="https://t.me/livinggad" target="_blank" rel="noopener">@LIVINGGAD</a></p>
+</footer>
+
+<!-- ============ PLAY (full screen) ============ -->
+<div class="play" id="play" hidden>
+  <div class="play-canvas" id="playCanvas"></div>
+
+  <div class="play-top">
+    <button class="icon-btn" id="playClose" aria-label="Закрыть">✕</button>
+    <button class="chip mode-btn" id="modeBtn">Режим ▾</button>
+    <button class="icon-btn" id="settingsBtn" aria-label="Настройки">⚙</button>
+  </div>
+
+  <div class="play-tools">
+    <label class="toggle"><input type="checkbox" id="hlToggle" checked><span></span>Подсветка ходов</label>
+    <div class="seg seg-sm" id="layoutSeg"><button data-layout="spiral" class="on">Спираль</button><button data-layout="stack">Стопка</button><button data-layout="flat">Ряд</button></div>
+    <div class="row-btns"><button class="chip" id="viewReset">Обзор</button><button class="chip" id="viewTop">Сверху</button><button class="chip" id="panBtn" title="Один палец двигает вид в сторону, а не вращает">✋ Двигать</button></div>
+    <label class="slider">Разнести <input type="range" id="gapRange" min="1.3" max="4" step="0.1" value="1.9"></label>
+    <label class="slider" title="Выберите доску кнопкой ниже — она останется плотной, остальные станут прозрачными">Прозрачность <input type="range" id="fadeRange" min="0.1" max="1" step="0.05" value="1"></label>
+    <div class="board-jump" id="boardJump"></div>
+  </div>
+
+  <div class="play-status" id="playStatus"></div>
+
+  <div class="sheet" id="sheet" hidden>
+    <h3 id="sheetTitle"></h3>
+    <div id="sheetBody" class="sheet-body"></div>
+    <div class="sheet-actions" id="sheetActions"></div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+</div>
+
+<script type="module" src="js/main.js?v=202611170128"></script>
+</body>
+</html>
